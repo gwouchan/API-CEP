@@ -17,5 +17,12 @@ def pesquisacep(cep):
     resposta = requests.get(url)
     return resposta.json()
 
+@app.rout('/temperatura/<cidade>', methods=['GET'])
+def pesquisatemperatura(cidade):
+    url = f'https://api.weatherapi.com/v1/current.json?key=c4380707dde242f4b78202712252204&q={cidade}&lang=pt'
+    resposta = requests.get(url)
+    return resposta.json()
+
 if __name__ == '__main__':
     app.run(debug=True)
+
