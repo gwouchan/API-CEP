@@ -17,7 +17,9 @@ def pesquisacep(cep):
     resposta = requests.get(url)
     return resposta.json()
 
-@app.route('/')
+#==============================================
+
+@app.route('/clima')
 def home():
     return render_template('index.html')
 
