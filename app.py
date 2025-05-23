@@ -23,18 +23,20 @@ def pesquisatemperatura(cidade):
     resposta = requests.get(url)
     result = resposta.json()
 
-    cidade = result[][]
-    Região = result[][]
+    cidade = result['location']['name']
+    regiao = result['location']['region']
     temperatura = result['current']['temp_c']
     umidade = result['current']['humidity']
-    visibilidade = [][]
-    pressão = [][]
+    condicao = result['current']['condition']['text']
+    visibilidade = result['current']['vis_km']
+    pressao = result['current']['pressure_mb']
 
 
     
 
     #return resposta.json()
-    return render_template("paginatempo.html", temp = temperatura, umid = umidade)
+    return render_template("paginatempo.html", cid = cidade, reg = regiao, temp = temperatura, umid = umidade,
+                           cond = condicao, vis = visibilidade, press = pressao)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -23,7 +23,12 @@
             margin-bottom: 20px;
         }
         .dado {
-            font-size: 2em;
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+        select {
+            font-size: 1em;
+            padding: 5px;
             margin: 10px 0;
         }
     </style>
@@ -31,10 +36,74 @@
 <body>
     <div class="painel">
         <h1>Monitoramento de Ambiente</h1>
-        <div class="dado">🏙️ Cidade: <strong>{{ cid }}%</strong></div>
-        <div class="dado">🌡️ Temperatura: <strong>{{ temp }}°C</strong></div>
-        <div class="dado">💧 Umidade: <strong>{{ umid }}%</strong></div>
-        <div class="dado">💧 Umidade: <strong>{{ umid }}%</strong></div>
+
+        <!-- Caixa de seleção para estados -->
+        <div>
+            <label for="estado">Escolha um estado:</label>
+            <select id="estado" onchange="atualizarCidades()">
+                <option value="">Selecione um estado</option>
+                <option value="SP">São Paulo</option>
+                <option value="RJ">Rio de Janeiro</option>
+                <option value="MG">Minas Gerais</option>
+                <option value="BA">Bahia</option>
+                <option value="RS">Rio Grande do Sul</option>
+            </select>
+        </div>
+
+        <!-- Caixa de seleção para cidades -->
+        <div>
+            <label for="cidade">Escolha uma cidade:</label>
+            <select id="cidade" onchange="enviarDados()">
+                <option value="">Selecione uma cidade</option>
+            </select>
+        </div>
+
+        <div class="dado">🏙️ Cidade: <strong id="cid">---</strong></div>
+        <div class="dado">🗺️ Região: <strong id="reg">---</strong></div>
+        <div class="dado">🌡️ Temperatura: <strong id="temp">---</strong>°C</div>
+        <div class="dado">💧 Umidade: <strong id="umid">---</strong>%</div>
+        <div class="dado">🌤️ Condição: <strong id="cond">---</strong></div>
+        <div class="dado">🫡 Visibilidade: <strong id="vis">---</strong>km</div>
+        <div class="dado">⚖️ Pressão Atmosférica: <strong id="press">---</strong>hPA</div>
     </div>
+
+    <script>
+        const cidadesPorEstado = {
+            "SP": ["São Paulo", "Campinas", "Santos", "Ribeirão Preto"],
+            "RJ": ["Rio de Janeiro", "Niterói", "Petrópolis", "Angra dos Reis"],
+            "MG": ["Belo Horizonte", "Uberlândia", "Juiz de Fora", "Montes Claros"],
+            "BA": ["Salvador", "Feira de Santana", "Vitória da Conquista", "Ilhéus"],
+            "RS": ["Porto Alegre", "Caxias do Sul", "Pelotas", "Santa Maria"]
+        };
+
+        function atualizarCidades() {
+            const estadoSelecionado = document.getElementById("estado").value;
+            const cidadeSelect = document.getElementById("cidade");
+
+            cidadeSelect.innerHTML = "<option value=''>Selecione uma cidade</option>";
+
+            if (estadoSelecionado && cidadesPorEstado[estadoSelecionado]) {
+                cidadesPorEstado[estadoSelecionado].forEach(cidade => {
+                    const option = document.createElement("option");
+                    option.value = cidade;
+                    option.textContent = cidade;
+                    cidadeSelect.appendChild(option);
+                });
+            }
+        }
+
+        function enviarDados() {
+            var estado = document.getElementById("estado").value;
+            var cidade = document.getElementById("cidade").value;
+
+            if (estado && cidade) {
+                fetch(`/processar?estado=${estado}&cidade=${cidade}`)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("resultado").innerHTML = data;
+                });
+            }
+        }
+    </script>
 </body>
 </html>
