@@ -1,47 +1,198 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Monitoramento de Ambiente</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #eef2f3;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        
-        .painel {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        
-        .painel h1 {
-            margin-bottom: 20px;
-        }
-        
-        .dado {
-            font-size: 2em;
-            margin: 10px 0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Consulta Clima</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px 25px;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      transition: all 0.3s ease-in-out;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 25px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      display: block;
+      margin: 15px 0 5px;
+      text-align: left;
+      color: #444;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      background: #f9f9f9;
+      transition: border-color 0.2s;
+    }
+
+    select:focus, button:focus {
+      border-color: #00c6ff;
+      outline: none;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: white;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+
+    #resultado {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    #resultado p {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    #resultado span {
+      font-weight: bold;
+      color: #007BFF;
+    }
+  </style>
 </head>
 <body>
-    <div class="painel">
-        <h1>Monitoramento de Ambiente</h1>
+  <div class="container">
+    <h1>Consulta de Clima por Cidade</h1>
 
-        <div class="dado">🏙️ Cidade: <strong>{{ cid }}</strong></div>
-        <div class="dado">🗺️ Região: <strong>{{ reg }}</strong></div>
-        <div class="dado">🌡️ Temperatura: <strong>{{ temp }}°C</strong></div>
-        <div class="dado">💧 Umidade: <strong>{{ umid }}%</strong></div>
-        <div class="dado">🌤️ Condição: <strong>{{ cond }}</strong></div>
-        <div class="dado">🫡 Visibilidade: <strong>{{ vis }}km</strong></div>
-        <div class="dado">⚖️ Pressão Atmosférica: <strong>{{ press }}hPA</strong></div>
+    <label for="estado">Estado:</label>
+    <select id="estado">
+      <option value="">Selecione um estado</option>
+    </select>
+
+    <label for="cidade">Cidade:</label>
+    <select id="cidade" disabled>
+      <option value="">Selecione uma cidade</option>
+    </select>
+
+    <button id="consultar" disabled>Consultar Clima</button>
+
+    <div id="resultado">
+      <p>🌡️ Temperatura: <span id="temperatura">--</span></p>
+      <p>💧 Umidade: <span id="umidade">--</span></p>
+      <p>🌤️ Condição: <span id="condicao">--</span></p>
+      <p>👁 Visibilidade: <span id="visibilidade">--</span></p>
+      <p>⚖️ Pressão: <span id="pressao">--</span></p>
+
     </div>
+  </div>
+
+  <script>
+    async function carregarEstados() {
+      const response = await fetch('/estados');
+      const estados = await response.json();
+      const selectEstado = document.getElementById('estado');
+      estados.forEach(estado => {
+        const option = document.createElement('option');
+        option.value = estado;
+        option.textContent = estado;
+        selectEstado.appendChild(option);
+      });
+    }
+
+    document.getElementById('estado').addEventListener('change', async function() {
+      const estado = this.value;
+      const selectCidade = document.getElementById('cidade');
+      selectCidade.innerHTML = '<option value="">Selecione uma cidade</option>';
+      document.getElementById('consultar').disabled = true;
+
+      if (estado) {
+        const response = await fetch(`/cidades/${estado}`);
+        const cidades = await response.json();
+        cidades.forEach(cidade => {
+          const option = document.createElement('option');
+          option.value = cidade;
+          option.textContent = cidade;
+          selectCidade.appendChild(option);
+        });
+        selectCidade.disabled = false;
+      } else {
+        selectCidade.disabled = true;
+      }
+    });
+
+    document.getElementById('cidade').addEventListener('change', function() {
+      document.getElementById('consultar').disabled = !this.value;
+    });
+
+    document.getElementById('consultar').addEventListener('click', async function() {
+      const estado = document.getElementById('estado').value;
+      const cidade = document.getElementById('cidade').value;
+
+      try {
+        const response = await fetch(`/clima/${estado}/${cidade}`);
+        if (!response.ok) {
+          throw new Error(`Erro na requisição: ${response.statusText}`);
+        }
+
+        const dados = await response.json();
+        if (!dados.temperatura || !dados.umidade || !dados.condicao || !dados.visibilidade || !dados.pressao) {
+          throw new Error('Dados de clima não disponíveis.');
+        }
+
+        document.getElementById('temperatura').textContent = `${dados.temperatura} °C`;
+        document.getElementById('umidade').textContent = `${dados.umidade} %`;
+        document.getElementById('condicao').textContent = `${dados.condicao} `;
+        document.getElementById('visibilidade').textContent = `${dados.visibilidade} km`;
+        document.getElementById('pressao').textContent = `${dados.pressao} hPA`;
+
+
+      } catch (error) {
+        console.error('Erro ao buscar clima:', error);
+        alert('Erro ao buscar clima. Tente novamente mais tarde.');
+      }
+    });
+
+    carregarEstados();
+  </script>
 </body>
 </html>

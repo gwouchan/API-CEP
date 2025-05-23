@@ -17,26 +17,51 @@ def pesquisacep(cep):
     resposta = requests.get(url)
     return resposta.json()
 
-@app.route('/tempo/<cidade>', methods=['GET'])
-def pesquisatemperatura(cidade):
-    url = f'https://api.weatherapi.com/v1/current.json?key=c4380707dde242f4b78202712252204&q={cidade}&lang=pt'
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/estados', methods=['GET'])
+def lista_estado():
+    url = 'https://servicodados.ibge.gov.br/api/v1/localidades/estados'
+    resposta = requests.get(url)
+    result = resposta.json()
+    
+    estados = sorted([estado['sigla'] for estado in result])
+    
+    return jsonify(estados)
+        
+@app.route('/cidades/<estado>', methods=['GET'])
+def lista_cidades(estado):
+    url = f'https://servicodados.ibge.gov.br/api/v1/localidades/estados/{estado}/municipios'
     resposta = requests.get(url)
     result = resposta.json()
 
-    cidade = result['location']['name']
-    regiao = result['location']['region']
-    temperatura = result['current']['temp_c']
-    umidade = result['current']['humidity']
-    condicao = result['current']['condition']['text']
-    visibilidade = result['current']['vis_km']
-    pressao = result['current']['pressure_mb']
+    cidades = [cidade['nome'] for cidade in result]
+    
+    return jsonify(cidades)
 
+@app.route('/clima/<estado>/<cidade>', methods=['GET'])
+def consulta_clima(estado, cidade):
+    url = f'https://api.weatherapi.com/v1/current.json?key=c4380707dde242f4b78202712252204&q={cidade}&lang=pt'
+    
+    resposta = requests.get(url)
+    result = resposta.json()
 
+    temperatura = result.get('current', {}).get('temp_c', 'Dados indisponíveis')
+    umidade = result.get('current', {}).get('humidity', 'Dados indisponíveis')
+    condicao = result.get('current', {}).get('condition', {}).get('text', 'Dados indisponíveis')
+    visibilidade = result.get('current', {}).get('vis_km', 'Dados indisponíveis')
+    pressao = result.get('current', {}).get('pressure_mb', 'Dados indisponíveis')
     
 
-    #return resposta.json()
-    return render_template("paginatempo.html", cid = cidade, reg = regiao, temp = temperatura, umid = umidade,
-                           cond = condicao, vis = visibilidade, press = pressao)
+    return jsonify({
+        'temperatura': temperatura,
+        'umidade': umidade,
+        'condicao': condicao,
+        'visibilidade': visibilidade,
+        'pressao': pressao
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)
