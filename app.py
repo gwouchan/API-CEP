@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 import requests
 
 app = Flask(__name__)
@@ -19,9 +19,17 @@ def pesquisacep(cep):
 
 #==============================================
 
-@app.route('/clima')
+@app.route('/', methods = ['GET'])
 def home():
     return render_template('index.html')
+
+#==============================================
+
+
+
+@app.route('/clima')
+def homepage():
+    return render_template('pagclima.html')
 
 @app.route('/estados', methods=['GET'])
 def lista_estado():
@@ -64,6 +72,37 @@ def consulta_clima(estado, cidade):
         'visibilidade': visibilidade,
         'pressao': pressao
     })
+
+#=======================================================
+
+@app.route('/cep', methods = ['GET', 'POST'])
+def buscarcep():
+    if request.method == 'POST':
+        cep = request.form.get('cep')
+        url = f'https://viacep.com.br/ws/{cep}/json/'
+        resposta = requests.get(url)
+        if resposta.status_code != 200:
+            return render_template('pagcep.html', erro = 'Erro ao consultar CEP.')
+        
+        result = resposta.json()
+        
+        if result.get('erro'):
+            return render_template('pagcep.html', erro = 'CEP não encontrado')
+        
+
+        return render_template('pagcep.html',
+            logradouro = result['logradouro'],
+            bairro = result['bairro'],
+            localidade = result['localidade'],
+            estado = result['estado'],
+            uf = result['uf'],
+            regiao = result['regiao'],
+            ddd = result['ddd']
+        )
+
+    elif request.method == 'GET':
+        return render_template('pagcep.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

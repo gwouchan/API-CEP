@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Consulta de CEP</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+      color: #333;
+    }
+
+    .voltar {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #e67e22;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .voltar:hover {
+      background-color: #d35400;
+    }
+
+    h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    form {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 15px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #2980b9;
+    }
+
+    .erro {
+      color: #e74c3c;
+      margin-top: 15px;
+    }
+
+    .endereco {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 30px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .endereco p {
+      margin: 8px 0;
+    }
+
+    strong {
+      color: #2c3e50;
+    }
+  </style>
+</head>
+<body>
+  <!-- Botão de voltar -->
+  <button class="voltar" onclick="history.back()">Voltar</button>
+
+  <h2>Buscar Endereço pelo CEP</h2>
+  <form method="post">
+    <label for="cep">Digite o CEP:</label>
+    <input type="text" id="cep" name="cep" maxlength="9" placeholder="Ex: 01001-000" required />
+    <button type="submit">Buscar</button>
+  </form>
+
+  {% if erro %}
+    <p class="erro">{{ erro }}</p>
+  {% endif %}
+
+  {% if logradouro %}
+    <div class="endereco">
+      <p><strong>Logradouro:</strong> {{ logradouro }}</p>
+      <p><strong>Bairro:</strong> {{ bairro }}</p>
+      <p><strong>Cidade:</strong> {{ localidade }}</p>
+      <p><strong>Estado:</strong> {{ estado }}/{{ uf }}</p>
+      <p><strong>Região:</strong> {{ regiao }}</p>
+      <p><strong>DDD:</strong> {{ ddd }}</p>
+    </div>
+  {% endif %}
+</body>
+</html>
